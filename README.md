@@ -7,4 +7,4 @@ Versão 2: Utilizada a biblioteca pandas, otimizando o salvamento e a atualizaç
 
 Versão 3: Adição de interface gráfica (GUI). Utilizando o Tkinter, para criar uma janela com botões e campos de texto, tornando o programa mais amigável.
 
-Versão 4: Implementarei a criptografia das senhas no arquivo .xlsx, garantindo que as informações salvas estejam protegidas.
+Versão 4: Implementarei a validação de força da senha gerada pelo programa bem como a validação em tempo real da senha informada pelo usuário.
