@@ -61,16 +61,37 @@ def gerar_senha_gui(entrada_tamanho, var_maiusculas, var_minusculas, var_numeros
     """
     try:
         tamanho_senha = int(entrada_tamanho.get())
+        if tamanho_senha <= 0:
+            exibir_senha.delete(0, tk.END)
+            exibir_senha.insert(0, "Erro: Tamanho inválido!")
+            label_feedback.config(text="Erro: Tamanho inválido!", fg="red")
+            return
+
         incluir_maiusculas = var_maiusculas.get()
         incluir_minusculas = var_minusculas.get()
         incluir_numeros = var_numeros.get()
         incluir_especiais = var_especiais.get()
         embaralhar_senha = var_embaralhar.get()
+
         senha_gerada = gerar_senha_com_padrao(tamanho_senha, incluir_maiusculas, incluir_minusculas,
                                               incluir_numeros, incluir_especiais, embaralhar_senha)
+        
+        # Chama a nova função de validação de força
+        forca_senha = verificar_forca_senha(senha_gerada)
+
         exibir_senha.delete(0, tk.END)
         exibir_senha.insert(0, senha_gerada)
-        label_feedback.config(text="Senha gerada com sucesso!", fg="blue")
+        
+        # Exibe o status de força da senha
+        if forca_senha == "Forte":
+            cor = "green"
+        elif forca_senha == "Média":
+            cor = "orange"
+        else:
+            cor = "red"
+        
+        label_feedback.config(text=f"Senha gerada. Força: {forca_senha}", fg=cor)
+
     except ValueError:
         exibir_senha.delete(0, tk.END)
         exibir_senha.insert(0, "Erro: Tamanho inválido!")
@@ -104,6 +125,64 @@ def copiar_senha_gui(exibir_senha, label_feedback):
         label_feedback.config(text="Não é possível copiar. Gere uma senha válida primeiro!", fg="red")
     else:
         label_feedback.config(text="Nenhuma senha para copiar.", fg="red")
+
+def verificar_forca_senha(senha):
+    """
+    Verifica a força de uma senha com base em critérios de composição.
+    Retorna uma pontuação de 0 a 6.
+    """
+    pontuacao = 0
+    tamanho_senha = len(senha)
+
+    # Critérios de composição
+    tem_maiuscula = any(c.isupper() for c in senha)
+    tem_minuscula = any(c.islower() for c in senha)
+    tem_numero = any(c.isdigit() for c in senha)
+    tem_especial = any(not c.isalnum() for c in senha)
+
+    # Adiciona pontos por tipo de caractere
+    if tem_maiuscula:
+        pontuacao += 1
+    if tem_minuscula:
+        pontuacao += 1
+    if tem_numero:
+        pontuacao += 1
+    if tem_especial:
+        pontuacao += 1
+    
+    # Adiciona pontos por tamanho
+    if tamanho_senha >= 8:
+        pontuacao += 1
+    if tamanho_senha >= 12:
+        pontuacao += 1
+    if tamanho_senha >= 16:
+        pontuacao += 1
+    
+    # Traduz a pontuação para um status de força
+    if pontuacao <= 2:
+        return "Fraca"
+    elif pontuacao <= 4:
+        return "Média"
+    else:
+        return "Forte"
+    
+def validar_senha_em_tempo_real(event, entrada_validar, label_feedback_validar):
+    senha = entrada_validar.get()
+    if not senha:
+        label_feedback_validar.config(text="", fg="black")
+        return
+        
+    forca_senha = verificar_forca_senha(senha)
+
+    if forca_senha == "Forte":
+        cor = "green"
+    elif forca_senha == "Média":
+        cor = "orange"
+    else:
+        cor = "red"
+        
+    label_feedback_validar.config(text=f"Força: {forca_senha}", fg=cor)
+
 
 def criar_gui():
     root = tk.Tk()
@@ -180,6 +259,20 @@ def criar_gui():
 
     # 8. Rótulo de status
     label_feedback.pack(pady=10)
+
+    # 9. Frame para validar a força de uma senha manualmente
+    frame_validador = tk.LabelFrame(root, text="Validar Força da Senha")
+    frame_validador.pack(pady=20, padx=10, fill="x")
+
+    label_validar = tk.Label(frame_validador, text="Digite a senha:")
+    label_validar.pack(pady=5)
+
+    entrada_validar = tk.Entry(frame_validador, width=40)
+    entrada_validar.bind("<KeyRelease>", lambda event: validar_senha_em_tempo_real(event, entrada_validar, label_feedback_validar))
+    entrada_validar.pack(pady=5)
+    
+    label_feedback_validar = tk.Label(frame_validador, text="", fg="blue")
+    label_feedback_validar.pack(pady=5)
     
     root.mainloop()
 
