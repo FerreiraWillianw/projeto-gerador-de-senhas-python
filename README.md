@@ -6,3 +6,5 @@ Versão 1: O projeto com arquivo .txt.
 Versão 2: Utilizada a biblioteca pandas, otimizando o salvamento e a atualização das senhas por meio de arquivo em .xlsx
 
 Versão 3: Adição de interface gráfica (GUI). Utilizando o Tkinter, para criar uma janela com botões e campos de texto, tornando o programa mais amigável.
+
+Versão 4: Implementado um validador de senha em tempo real.
